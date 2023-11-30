@@ -48,6 +48,7 @@ def main():
     wg.lr_walls[0][0].solid = False
     wg.draw_walls(line_renderer=win.draw_line)
     wg.test_draw_center_points(point_renderer=win.draw_point)
+    wg.test_draw_all_paths(line_renderer=win.draw_line)
 
     win.wait_for_close()
 

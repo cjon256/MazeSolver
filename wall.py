@@ -35,6 +35,19 @@ class Cell:
     def __repr__(self: Self) -> str:
         return f"Cell(visited={self.visited}"
 
+class Path:
+    def __init__(self: Self,
+                 start: Point,
+                 end: Point) -> None:
+        self.line = Line(start, end)
+
+    def draw(self: Self, renderer: Callable[[Line, str], None], color: Optional[str]=None) -> None:
+        if color:
+            fillcolor = color
+        else:
+            fillcolor = "RoyalBlue1"
+        renderer(self.line, fillcolor)
+
 class WallGrid:
     def __init__(self,
                  upper_right_corner: Point,
@@ -53,6 +66,8 @@ class WallGrid:
         self.lr_walls = self.create_leftright_walls()
         self.ud_walls = self.create_updown_walls()
         self.centers = self.create_centers()
+        self.vert_paths = self.create_vertical_paths()
+        self.horz_paths = self.create_horizontal_paths()
 
     def printall(self: Self) -> None:
         print(f"WallGrid(lr_walls={self.lr_walls},")
@@ -118,6 +133,46 @@ class WallGrid:
             centers.append(centers_row)
         return centers
 
+    def create_horizontal_paths(self: Self) -> list[Path]:
+        paths = []
+        center_offset_x = self.cell_size_x // 2
+        center_offset_y = self.cell_size_y // 2
+        for row in range(self.num_rows):
+            paths_row = []
+            for col in range(self.num_cols - 1):
+                paths_row.append(Path(
+                    Point(
+                        x = self.x1 + self.cell_size_x * col + center_offset_x,
+                        y = self.y1 + self.cell_size_y * row + center_offset_y
+                    ),
+                    Point(
+                        x = self.x1 + self.cell_size_x * (col+1) + center_offset_x,
+                        y = self.y1 + self.cell_size_y * row + center_offset_y
+                    )
+                ))
+            paths.append(paths_row)
+        return paths
+
+    def create_vertical_paths(self: Self) -> list[Path]:
+        paths = []
+        center_offset_x = self.cell_size_x // 2
+        center_offset_y = self.cell_size_y // 2
+        for row in range(self.num_rows - 1):
+            paths_row = []
+            for col in range(self.num_cols):
+                paths_row.append(Path(
+                    Point(
+                        x = self.x1 + self.cell_size_x * col + center_offset_x,
+                        y = self.y1 + self.cell_size_y * row + center_offset_y
+                    ),
+                    Point(
+                        x = self.x1 + self.cell_size_x * col + center_offset_x,
+                        y = self.y1 + self.cell_size_y * (row+1) + center_offset_y
+                    )
+                ))
+            paths.append(paths_row)
+        return paths
+
     def draw_walls(self: Self, line_renderer: Callable[[Line, str], None]):
         for row in self.lr_walls:
             for wall in row:
@@ -130,6 +185,14 @@ class WallGrid:
         for row in self.centers:
             for center in row:
                 center.draw(point_renderer)
+
+    def test_draw_all_paths(self: Self, line_renderer: Callable[[Line, str], None]):
+        for row in self.vert_paths:
+            for path in row:
+                path.draw(line_renderer)
+        for row in self.horz_paths:
+            for path in row:
+                path.draw(line_renderer)
 
     def is_not_first_row_cell(self: Self, row: int) -> bool:
         return row > 0
