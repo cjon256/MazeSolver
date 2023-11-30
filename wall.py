@@ -1,8 +1,5 @@
 from tkinter import Tk, BOTH, Canvas
 from typing import Any, Self, Callable, Optional
-# import random
-# from time import sleep
-# from collections import deque as Deque
 from itertools import chain
 
 from geometry import Point, Line, Location
@@ -23,7 +20,6 @@ class Wall:
         else:
             fillcolor = "black" if self.solid else "white"
         renderer(self.line, fillcolor)
-        # self.line.draw(canvas, fillcolor)
 
     def __repr__(self):
         return f"Wall(loc={self.loc}, line={self.line}, solid={self.solid})"

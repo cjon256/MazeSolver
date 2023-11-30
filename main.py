@@ -9,9 +9,6 @@ from geometry import Point, Line
 
 import sys
 
-def close(event):
-    sys.exit() # if you want to exit the entire thing
-
 class Window():
     def __init__(self, width, height) -> None:
         self.root = Tk()
@@ -37,26 +34,11 @@ class Window():
     def draw_line(self, line: Line, fillcolor: str):
         self.canvas.create_line(line.s.x, line.s.y, line.e.x, line.e.y, fill=fillcolor)
 
-    # def draw_cell(self, cell: Cell, fillcolor: str):
-    #     cell.draw(self.canvas, fillcolor)
-    #
-    # def draw_line_between_cells(self, from_cell: Cell, to_cell: Cell) -> None:
-    #     from_cell.draw_move(self.canvas, to_cell)
-
 from wall import Wall, WallGrid
-
 
 def main():
     random.seed(42)
     win = Window(800, 600)
-    #    mz = Maze(upper_right_corner=Point(25, 25), 
-    #              num_rows=11, num_cols=15, 
-    #              cell_size_x=50, cell_size_y=50, 
-    #              win=win)
-    #    mz._break_entrance_and_exit()
-    #    # mz._draw_all_cells()
-    #    mz._break_walls_r(2,2)
-    #    mz._animate()
     wg = WallGrid(upper_right_corner=Point(25, 25), 
                   cell_size_x=50, cell_size_y=50, 
                   num_rows=3, num_cols=2)
@@ -64,7 +46,6 @@ def main():
     wg.draw_walls(line_renderer=win.draw_line)
 
     win.wait_for_close()
-
 
 if __name__ == "__main__":
     main()
