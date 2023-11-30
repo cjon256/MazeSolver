@@ -61,7 +61,7 @@ def main():
                   cell_size_x=50, cell_size_y=50, 
                   num_rows=3, num_cols=2)
     wg.lr_walls[0][0].solid = False
-    wg.draw_walls(canvas=win.canvas)
+    wg.draw_walls(line_renderer=win.draw_line)
 
     win.wait_for_close()
 

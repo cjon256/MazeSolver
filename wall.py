@@ -1,5 +1,5 @@
 from tkinter import Tk, BOTH, Canvas
-from typing import Any, Self
+from typing import Any, Self, Callable, Optional
 # import random
 # from time import sleep
 # from collections import deque as Deque
@@ -17,14 +17,14 @@ class Wall:
         self.line = Line(start, end)
         self.solid = solid
         self.loc = loc
-        self.color = None
 
-    def draw(self: Self, canvas: Canvas):
-        if self.color:
+    def draw(self: Self, renderer: Callable[[Line, str], None], color: Optional[str]=None) -> None:
+        if color:
             fillcolor = self.color
         else:
             fillcolor = "black" if self.solid else "white"
-        self.line.draw(canvas, fillcolor)
+        renderer(self.line, fillcolor)
+        # self.line.draw(canvas, fillcolor)
 
     def __repr__(self):
         return f"Wall(loc={self.loc}, line={self.line}, solid={self.solid})"
@@ -105,11 +105,11 @@ class WallGrid:
             lr_walls.append(lr_wall_row)
         return (lr_walls, ud_walls, centers)
 
-    def draw_walls(self: Self, canvas: Canvas):
+    def draw_walls(self: Self, line_renderer: Callable[[Line, str], None]):
         for wall in self.all_walls:
             print(wall)
             try:
-                wall.draw(canvas)
+                wall.draw(line_renderer)
             except AttributeError:
                 pass
 
