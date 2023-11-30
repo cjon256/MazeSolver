@@ -9,20 +9,31 @@ class Wall:
                  loc: Location,
                  start: Point,
                  end: Point,
-                 solid: bool=True):
+                 solid: bool=True) -> None:
         self.line = Line(start, end)
         self.solid = solid
         self.loc = loc
 
     def draw(self: Self, renderer: Callable[[Line, str], None], color: Optional[str]=None) -> None:
         if color:
-            fillcolor = self.color
+            fillcolor = color
         else:
             fillcolor = "black" if self.solid else "white"
         renderer(self.line, fillcolor)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Wall(loc={self.loc}, line={self.line}, solid={self.solid})"
+
+class Cell:
+    def __init__(self: Self, x: int, y: int, visited: bool=False) -> None:
+        self.point = Point(x, y)
+        self.visited = visited
+
+    def draw(self: Self, renderer: Callable[[Point, str], None], color: Optional[str]=None) -> None:
+        renderer(self.point, color)
+
+    def __repr__(self: Self) -> str:
+        return f"Cell(visited={self.visited}"
 
 class WallGrid:
     def __init__(self,
@@ -39,8 +50,9 @@ class WallGrid:
         self.num_cols = num_cols
         self.cell_size_x = cell_size_x
         self.cell_size_y = cell_size_y
-        self.lr_walls, self.ud_walls, self.centers = self.create_walls_and_centers()
-        self.all_walls = list(chain.from_iterable([*self.lr_walls, *self.ud_walls]))
+        self.lr_walls = self.create_leftright_walls()
+        self.ud_walls = self.create_updown_walls()
+        self.centers = self.create_centers()
 
     def printall(self: Self) -> None:
         print(f"WallGrid(lr_walls={self.lr_walls},")
@@ -53,60 +65,71 @@ class WallGrid:
     def is_not_last_row_cell(self: Self, row: int) -> bool:
         return row < self.num_rows
 
-    def create_walls_and_centers(self: Self) -> None:
+    def create_leftright_walls(self: Self) -> list[Wall]:
         lr_walls = []
-        ud_walls = []
-        centers = []
-        center_offset_x = self.cell_size_x // 2
-        center_offset_y = self.cell_size_y // 2
-        for row in range(self.num_rows + 1):
+        for row in range(self.num_rows):
             lr_wall_row = []
-            ud_wall_row = []
-            centers_row = []
             for col in range(self.num_cols + 1):
-                if self.is_valid_cell(row, col):
-                    centers_row.append(Point(
-                        x = self.x1 + self.cell_size_x * col + center_offset_x,
-                        y = self.y1 + self.cell_size_y * row + center_offset_y
-                    ))
-                    print(f"col={col} final ={self.is_right_border_wall(col)}")
-                if not self.is_bottom_border_wall(row):
                     lr_wall_row.append(Wall(
                         Location(row, col),
                         Point(
-                            x = self.x1 + self.cell_size_x * col + center_offset_x,
-                            y = self.y1 + self.cell_size_y * row + center_offset_y
+                            x = self.x1 + self.cell_size_x * col,
+                            y = self.y1 + self.cell_size_y * row
                             ),
                         Point(
-                            x = self.x1 + self.cell_size_x * col + center_offset_x,
-                            y = self.y1 + self.cell_size_y * (row+1) + center_offset_y
+                            x = self.x1 + self.cell_size_x * col,
+                            y = self.y1 + self.cell_size_y * (row+1)
                             )
                         ))
-                if not self.is_right_border_wall(col):
-                    ud_wall_row.append(Wall(
-                        Location(row, col),
-                        Point(
-                            x = self.x1 + self.cell_size_x * col + center_offset_x,
-                            y = self.y1 + self.cell_size_y * row + center_offset_y
-                            ),
-                        Point(
-                            x = self.x1 + self.cell_size_x * (col+1) + center_offset_x,
-                            y = self.y1 + self.cell_size_y * row + center_offset_y
-                            )
-                        ))
-            if self.is_not_last_row_cell(row):
-                centers.append(centers_row)
-            ud_walls.append(ud_wall_row)
             lr_walls.append(lr_wall_row)
-        return (lr_walls, ud_walls, centers)
+        return lr_walls
+
+    def create_updown_walls(self: Self) -> list[Wall]:
+        ud_walls = []
+        for row in range(self.num_rows + 1):
+            ud_wall_row = []
+            for col in range(self.num_cols):
+                ud_wall_row.append(Wall(
+                    Location(row, col),
+                    Point(
+                        x = self.x1 + self.cell_size_x * col,
+                        y = self.y1 + self.cell_size_y * row,
+                        ),
+                    Point(
+                        x = self.x1 + self.cell_size_x * (col+1),
+                        y = self.y1 + self.cell_size_y * row,
+                        )
+                    ))
+            ud_walls.append(ud_wall_row)
+        return ud_walls
+
+
+    def create_centers(self: Self) -> list[Cell]:
+        centers = []
+        center_offset_x = self.cell_size_x // 2
+        center_offset_y = self.cell_size_y // 2
+        for row in range(self.num_rows):
+            centers_row = []
+            for col in range(self.num_cols):
+                centers_row.append(Cell(
+                    x = self.x1 + self.cell_size_x * col + center_offset_x,
+                    y = self.y1 + self.cell_size_y * row + center_offset_y
+                ))
+            centers.append(centers_row)
+        return centers
 
     def draw_walls(self: Self, line_renderer: Callable[[Line, str], None]):
-        for wall in self.all_walls:
-            print(wall)
-            try:
+        for row in self.lr_walls:
+            for wall in row:
                 wall.draw(line_renderer)
-            except AttributeError:
-                pass
+        for row in self.ud_walls:
+            for wall in row:
+                wall.draw(line_renderer, color="green2")
+
+    def test_draw_center_points(self: Self, point_renderer: Callable[[Point, str], None]) -> None:
+        for row in self.centers:
+            for center in row:
+                center.draw(point_renderer)
 
     def is_not_first_row_cell(self: Self, row: int) -> bool:
         return row > 0

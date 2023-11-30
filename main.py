@@ -34,6 +34,9 @@ class Window():
     def draw_line(self, line: Line, fillcolor: str):
         self.canvas.create_line(line.s.x, line.s.y, line.e.x, line.e.y, fill=fillcolor)
 
+    def draw_point(self, point: Point, fillcolor: str):
+        self.canvas.create_rectangle(point.x-1, point.y-1, point.x+1, point.y+1, fill=fillcolor)
+
 from wall import Wall, WallGrid
 
 def main():
@@ -44,6 +47,7 @@ def main():
                   num_rows=3, num_cols=2)
     wg.lr_walls[0][0].solid = False
     wg.draw_walls(line_renderer=win.draw_line)
+    wg.test_draw_center_points(point_renderer=win.draw_point)
 
     win.wait_for_close()
 
