@@ -35,7 +35,7 @@ class Window():
         self.running = False
 
     def draw_line(self, line: Line, fillcolor: str):
-        line.draw(self.canvas, fillcolor)
+        self.canvas.create_line(line.s.x, line.s.y, line.e.x, line.e.y, fill=fillcolor)
 
     # def draw_cell(self, cell: Cell, fillcolor: str):
     #     cell.draw(self.canvas, fillcolor)
