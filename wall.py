@@ -5,8 +5,7 @@ from typing import Any, Self, Callable, Optional
 # from collections import deque as Deque
 from itertools import chain
 
-from location import Location
-from shapes import Point, Line
+from geometry import Point, Line, Location
 
 class Wall:
     def __init__(self: Self,

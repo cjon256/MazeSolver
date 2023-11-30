@@ -16,3 +16,11 @@ class Line:
     def __repr__(self: Self):
         return f"Line(start={self.s}, end={self.e})"
 
+class Location:
+    def __init__(self: Self, row: int, col: int) -> None:
+        self.row = row
+        self.col = col
+
+    def __str__(self: Self):
+        return f"Location(row={self.row}, col={self.col})"
+

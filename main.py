@@ -5,7 +5,7 @@ from time import sleep
 from collections import deque as Deque
 from itertools import chain
 
-from shapes import Point, Line
+from geometry import Point, Line
 
 import sys
 
