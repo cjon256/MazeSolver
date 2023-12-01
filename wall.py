@@ -25,15 +25,15 @@ class Wall:
         return f"Wall(loc={self.loc}, line={self.line}, solid={self.solid})"
 
 class Cell:
-    def __init__(self: Self, x: int, y: int, visited: bool=False) -> None:
-        self.point = Point(x, y)
+    def __init__(self: Self, point: Point, visited: bool=False) -> None:
+        self.point = point
         self.visited = visited
 
     def draw(self: Self, renderer: Callable[[Point, str], None], color: Optional[str]=None) -> None:
         renderer(self.point, color)
 
     def __repr__(self: Self) -> str:
-        return f"Cell(visited={self.visited}"
+        return f"Cell(visited={self.visited})"
 
 class Path:
     def __init__(self: Self,
@@ -118,18 +118,18 @@ class WallGrid:
             ud_walls.append(ud_wall_row)
         return ud_walls
 
+    def generate_center_point(self: Self, row: int, col: int) -> Point:
+        center_offset_x = self.cell_size_x // 2
+        center_offset_y = self.cell_size_y // 2
+        return Point(x = self.x1 + self.cell_size_x * col + center_offset_x,
+                     y = self.y1 + self.cell_size_y * row + center_offset_y)
 
     def create_centers(self: Self) -> list[Cell]:
         centers = []
-        center_offset_x = self.cell_size_x // 2
-        center_offset_y = self.cell_size_y // 2
         for row in range(self.num_rows):
             centers_row = []
             for col in range(self.num_cols):
-                centers_row.append(Cell(
-                    x = self.x1 + self.cell_size_x * col + center_offset_x,
-                    y = self.y1 + self.cell_size_y * row + center_offset_y
-                ))
+                centers_row.append(Cell(self.generate_center_point(row, col)))
             centers.append(centers_row)
         return centers
 
@@ -140,16 +140,8 @@ class WallGrid:
         for row in range(self.num_rows):
             paths_row = []
             for col in range(self.num_cols - 1):
-                paths_row.append(Path(
-                    Point(
-                        x = self.x1 + self.cell_size_x * col + center_offset_x,
-                        y = self.y1 + self.cell_size_y * row + center_offset_y
-                    ),
-                    Point(
-                        x = self.x1 + self.cell_size_x * (col+1) + center_offset_x,
-                        y = self.y1 + self.cell_size_y * row + center_offset_y
-                    )
-                ))
+                paths_row.append(Path(self.generate_center_point(row=row, col=col),
+                                      self.generate_center_point(row=row, col=col+1)))
             paths.append(paths_row)
         return paths
 
@@ -160,15 +152,8 @@ class WallGrid:
         for row in range(self.num_rows - 1):
             paths_row = []
             for col in range(self.num_cols):
-                paths_row.append(Path(
-                    Point(
-                        x = self.x1 + self.cell_size_x * col + center_offset_x,
-                        y = self.y1 + self.cell_size_y * row + center_offset_y
-                    ),
-                    Point(
-                        x = self.x1 + self.cell_size_x * col + center_offset_x,
-                        y = self.y1 + self.cell_size_y * (row+1) + center_offset_y
-                    )
+                paths_row.append(Path(self.generate_center_point(row=row, col=col),
+                                      self.generate_center_point(row=row+1, col=col)
                 ))
             paths.append(paths_row)
         return paths
