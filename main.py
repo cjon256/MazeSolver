@@ -35,7 +35,7 @@ class Window():
         self.canvas.create_line(line.s.x, line.s.y, line.e.x, line.e.y, width=2, fill=fillcolor)
 
     def draw_point(self, point: Point, fillcolor: str):
-        self.canvas.create_rectangle(point.x-1, point.y-1, point.x+1, point.y+1, fill=fillcolor)
+        self.canvas.create_rectangle(point.x-3, point.y-3, point.x+3, point.y+3, fill=fillcolor)
 
 from wall import Wall, WallGrid
 
