@@ -1,26 +1,19 @@
 from tkinter import Tk, BOTH, Canvas
 from typing import Any, Self
+from dataclasses import dataclass
 
+@dataclass
 class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    x: int 
+    y: int
 
-    def __repr__(self):
-        return f"Point(x={self.x}, y={self.y})"
-
+@dataclass
 class Line:
-    def __init__(self: Self, start: Point, end: Point) -> None:
-        self.s, self.e = start, end
+    s: Point
+    e: Point
 
-    def __repr__(self: Self):
-        return f"Line(start={self.s}, end={self.e})"
-
+@dataclass
 class Location:
-    def __init__(self: Self, row: int, col: int) -> None:
-        self.row = row
-        self.col = col
-
-    def __str__(self: Self):
-        return f"Location(row={self.row}, col={self.col})"
+    row: int
+    col: int
 
