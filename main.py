@@ -32,7 +32,7 @@ class Window():
         self.running = False
 
     def draw_line(self, line: Line, fillcolor: str):
-        self.canvas.create_line(line.s.x, line.s.y, line.e.x, line.e.y, fill=fillcolor)
+        self.canvas.create_line(line.s.x, line.s.y, line.e.x, line.e.y, width=2, fill=fillcolor)
 
     def draw_point(self, point: Point, fillcolor: str):
         self.canvas.create_rectangle(point.x-1, point.y-1, point.x+1, point.y+1, fill=fillcolor)
