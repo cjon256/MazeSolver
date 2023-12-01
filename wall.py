@@ -68,6 +68,8 @@ class WallGrid:
         self.centers = self.create_centers()
         self.vert_paths = self.create_vertical_paths()
         self.horz_paths = self.create_horizontal_paths()
+        self.entry_path = self.create_entry_path()
+        self.exit_path = self.create_exit_path()
 
     def printall(self: Self) -> None:
         print(f"WallGrid(lr_walls={self.lr_walls},")
@@ -144,6 +146,14 @@ class WallGrid:
                                       self.generate_center_point(row=row, col=col+1)))
             paths.append(paths_row)
         return paths
+
+    def create_entry_path(self: Self) -> Path:
+        return Path(self.generate_center_point(-1, 0),
+                    self.generate_center_point(0, 0))
+
+    def create_exit_path(self: Self) -> Path:
+        return Path(self.generate_center_point(row=self.num_rows-1, col=self.num_cols-1),
+                    self.generate_center_point(row=self.num_rows, col=self.num_cols-1))
 
     def create_vertical_paths(self: Self) -> list[Path]:
         paths = []
