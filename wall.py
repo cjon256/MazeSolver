@@ -1,7 +1,6 @@
 from tkinter import Tk, BOTH, Canvas
 from typing import Any, Self, Callable, Optional
-from itertools import chain
-
+import random
 from geometry import Point, Line, Location
 
 class Wall:
@@ -174,7 +173,11 @@ class WallGrid:
                 wall.draw(line_renderer)
         for row in self.ud_walls:
             for wall in row:
-                wall.draw(line_renderer, color="green2")
+                wall.draw(line_renderer)
+
+    def remove_entrance_and_exit(self: Self) -> None:
+        self.ud_walls[0][0].solid = False
+        self.ud_walls[self.num_rows][self.num_cols-1].solid = False
 
     def test_draw_center_points(self: Self, point_renderer: Callable[[Point, str], None]) -> None:
         for row in self.centers:
@@ -189,30 +192,83 @@ class WallGrid:
             for path in row:
                 path.draw(line_renderer)
 
-    def is_not_first_row_cell(self: Self, row: int) -> bool:
-        return row > 0
+    def get_cell(self, loc: Location) -> Cell:
+        return self.centers[loc.row][loc.col]
 
-    def is_not_first_col_cell(self: Self, col: int) -> bool:
-        return col > 0
+    def cell_is_not_visited(self: Self, loc: Location) -> bool:
+        return not (self.centers[loc.row][loc.col].visited)
 
-    def is_not_last_col_cell(self: Self, col: int) -> bool:
-        return col < self.num_cols
+    def mark_visited(self: Self, loc: Location) -> None:
+        self.centers[loc.row][loc.col].visited = True
 
-    def is_top_border_wall(self: Self, row: int) -> bool:
-        return row == 0
+    def get_neighbor_cells(self: Self, loc: Location) -> list[Location]:
+        print(f"get_neighbor_cells({loc=})")
+        neigh = []
+        if loc.row > 0:
+            neigh.append(Location(loc.row-1,loc.col))
+            print(f"adding left -> {neigh}")
+        if loc.row < self.num_rows-1:
+            neigh.append(Location(loc.row+1,loc.col))
+            print(f"adding right -> {neigh}")
+        if loc.col > 0:
+            neigh.append(Location(loc.row,loc.col-1))
+            print(f"adding above -> {neigh}")
+        if loc.col < self.num_cols-1:
+            neigh.append(Location(loc.row,loc.col+1))
+            print(f"adding below -> {neigh}")
+        return neigh
 
-    def is_bottom_border_wall(self: Self, row: int) -> bool:
-        return row == self.num_rows
+    def get_unvisited_neighbors(self: Self, loc: Location) -> list[Location]:
+        raw_neigh = self.get_neighbor_cells(loc)
+        print(f"{raw_neigh=}")
+        for n in raw_neigh:
+            visited = self.get_cell(n)
+            print(f"{visited=}")
+            cell_is_not_visited = self.cell_is_not_visited(n)
+            print(f"{n} visited? {visited}, ok but cell_is_not_visited ={cell_is_not_visited}")
+        result = list(filter(lambda neigh: self.cell_is_not_visited(neigh), raw_neigh))
+        print(f"{result=}")
+        return result
 
-    def is_left_border_wall(self: Self, col: int) -> bool:
-        return col == 0
+    def remove_wall_between_cells(self, cell1: Location, cell2: Location) -> None:
+        diff = (cell1.row - cell2.row, cell1.col - cell2.col)
+        print("###########")
+        match diff:
+            case (-1, 0):
+                print(cell1,cell2,"case 1")
+                self.ud_walls[cell2.row][cell2.col].solid = False
+            case (1, 0):
+                print(cell1,cell2,"case 4")
+                self.ud_walls[cell2.row + 1][cell2.col].solid = False
+            case (0,-1):
+                print(cell1,cell2,"case 2")
+                self.lr_walls[cell2.row][cell2.col].solid = False
+            case (0,1):
+                print(cell1,cell2,"case 3")
+                self.lr_walls[cell2.row][cell2.col + 1].solid = False
+            case _:
+                raise Exception(f"remove wall between non-adjacent cells {cell1} and {cell2}")
+        print("###########")
 
-    def is_right_border_wall(self: Self, col: int) -> bool:
-        print(f"is_right_border_wall(col={col}) -> == {self.num_cols}")
-        return col == self.num_cols
-
-
-
+    def remove_walls(self: Self, temp, line_renderer):
+        start = Location(0, 0)
+        path_walk = [start]
+        curr_cell = start
+        while path_walk:
+            print(f"visiting {curr_cell}")
+            self.mark_visited(curr_cell)
+            viable_neighbors = self.get_unvisited_neighbors(curr_cell)
+            print(f"         viable_neighbors {viable_neighbors}")
+            print(self.centers)
+            if not viable_neighbors:
+                curr_cell = path_walk.pop()
+                continue
+            next_cell = random.choice(viable_neighbors)
+            self.remove_wall_between_cells(curr_cell, next_cell)
+            path_walk.append(next_cell)
+            curr_cell = next_cell
+            self.draw_walls(line_renderer)
+            temp()
 
     def create_cell_grid(self) -> None:
         """
@@ -243,5 +299,4 @@ class WallGrid:
 
     def __iter__(self):
         return (self.cells[i][j] for j in range(self.num_cols) for i in range(self.num_rows))
-
 

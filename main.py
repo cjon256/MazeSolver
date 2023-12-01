@@ -31,8 +31,8 @@ class Window():
     def close(self):
         self.running = False
 
-    def draw_line(self, line: Line, fillcolor: str):
-        self.canvas.create_line(line.s.x, line.s.y, line.e.x, line.e.y, width=2, fill=fillcolor)
+    def draw_line(self, line: Line, fillcolor: str, width: int=2):
+        self.canvas.create_line(line.s.x, line.s.y, line.e.x, line.e.y, width=width, fill=fillcolor)
 
     def draw_point(self, point: Point, fillcolor: str):
         self.canvas.create_rectangle(point.x-3, point.y-3, point.x+3, point.y+3, fill=fillcolor)
@@ -44,12 +44,18 @@ def main():
     win = Window(800, 600)
     wg = WallGrid(upper_right_corner=Point(25, 25), 
                   cell_size_x=50, cell_size_y=50, 
-                  num_rows=3, num_cols=2)
-    wg.lr_walls[0][0].solid = False
+                  num_rows=11, num_cols=15)
     wg.draw_walls(line_renderer=win.draw_line)
-    wg.test_draw_center_points(point_renderer=win.draw_point)
-    wg.test_draw_all_paths(line_renderer=win.draw_line)
-
+    # wg.test_draw_center_points(point_renderer=win.draw_point)
+    # wg.test_draw_all_paths(line_renderer=win.draw_line)
+    win.redraw()
+    wg.remove_entrance_and_exit()
+    wg.draw_walls(line_renderer=win.draw_line)
+    wg.remove_walls(temp=win.redraw, line_renderer=win.draw_line)
+    print("Done removing walls...")
+    wg.entry_path.draw(renderer=win.draw_line, color="RoyalBlue2")
+    wg.exit_path.draw(renderer=win.draw_line, color="RoyalBlue2")
+    win.redraw()
     win.wait_for_close()
 
 if __name__ == "__main__":
