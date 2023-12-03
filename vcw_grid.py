@@ -1,5 +1,4 @@
 from typing import Optional, Any, Callable
-from dataclasses import dataclass
 from geometry import Location
 
 class VCWGrid:
@@ -64,6 +63,12 @@ class VCWGrid:
                 for col in range(1, self._col_length, 2):
                     func(self._grid[row][col])
 
+    def populate_cells(self, func: Callable[[Any], Any]):
+        for row in range(1, self._row_length, 2):
+            for col in range(1, self._col_length, 2):
+                self._grid[row][col] = func(row, col)
+        pass
+
     def populate_horz_walls(self, func: Callable[[Any], Any]):
         for row in range(0, self._row_length, 2):
             for col in range(1, self._col_length, 2):
@@ -79,11 +84,12 @@ class VCWGrid:
         grid_col = 2 * loc.col + 1
         return grid_row,grid_col
 
-    def is_valid_cell(self: Self, row: int, col: int) -> bool:
+    def is_valid_cell(self, row: int, col: int) -> bool:
         return (col >= 0 and col <= self.cell_cols and row >= 0 and row <= self.cell_rows)
 
     def get_cell(self, loc: Location) -> Any:
         if not self.is_valid_cell(row=loc.row, col=loc.col):
+            print(loc)
             raise Exception(f"Cell index out of range {loc}")
         grid_row, grid_col = VCWGrid.scale_location(loc)
         return self._grid[grid_row][grid_col]
@@ -123,6 +129,26 @@ class VCWGrid:
     def get_cell_to_west(self, loc: Location):
         cell_row, cell_col = VCWGrid.scale_location(loc)
         return self._grid[cell_row][cell_col-2]
+
+    def get_adjacent_cell_locations(self, loc: Location) -> list[Location]:
+        neigh = []
+        if loc.row > 0:
+            north_loc = Location(loc.row-1, loc.col)
+            # print(f"appending location {north_loc=}")
+            neigh.append(north_loc)
+        if loc.row < self.cell_rows-1:
+            south_loc = Location(loc.row+1, loc.col)
+            # print(f"appending location {south_loc}")
+            neigh.append(south_loc)
+        if loc.col < self.cell_cols-1:
+            east_loc = Location(loc.row, loc.col+1)
+            # print(f"appending location {east_loc}")
+            neigh.append(east_loc)
+        if loc.col > 0:
+            west_loc = Location(loc.row, loc.col-1)
+            # print(f"appending location {west_loc}")
+            neigh.append(west_loc)
+        return neigh
 
     def get_adjacent_cells(self, loc: Location) -> list[Any]:
         neigh = []
