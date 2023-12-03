@@ -55,12 +55,36 @@ class VCWGrid:
                 for col in range(1, self._col_length, 2):
                     self._grid[row][col] = func(self._grid[row][col])
 
+    def map_walls(self, func: Callable[[Any], Any]):
+        for row in range(0, self._row_length, 1):
+            if row % 2 == 1:
+                for col in range(0, self._col_length, 2):
+                    func(self._grid[row][col])
+            else:
+                for col in range(1, self._col_length, 2):
+                    func(self._grid[row][col])
+
+    def populate_horz_walls(self, func: Callable[[Any], Any]):
+        for row in range(0, self._row_length, 2):
+            for col in range(1, self._col_length, 2):
+                self._grid[row][col] = func(row,col)
+
+    def populate_vert_walls(self, func: Callable[[Any], Any]):
+        for row in range(1, self._row_length, 2):
+            for col in range(0, self._col_length, 2):
+                self._grid[row][col] = func(row,col)
+
     def scale_location(loc: Location) -> tuple[int, int]:
         grid_row = 2 * loc.row + 1
         grid_col = 2 * loc.col + 1
         return grid_row,grid_col
 
+    def is_valid_cell(self: Self, row: int, col: int) -> bool:
+        return (col >= 0 and col <= self.cell_cols and row >= 0 and row <= self.cell_rows)
+
     def get_cell(self, loc: Location) -> Any:
+        if not self.is_valid_cell(row=loc.row, col=loc.col):
+            raise Exception(f"Cell index out of range {loc}")
         grid_row, grid_col = VCWGrid.scale_location(loc)
         return self._grid[grid_row][grid_col]
 

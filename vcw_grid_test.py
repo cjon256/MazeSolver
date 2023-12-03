@@ -1,5 +1,6 @@
 import unittest
 import itertools
+from pprint import pp
 
 from geometry import Location
 from vcw_grid import VCWGrid
@@ -98,20 +99,47 @@ class Tests(unittest.TestCase):
             grid2x3._grid
         )
 
-
-    def test_vcw_apply_to_walls(self):
+    def test_vcw_populate_horz_walls(self):
         arr2x3 = [[None, 'w', None, 'w', None, 'w', None],
-                  ['w', None, 'w', None, 'w', None, 'w'],
+                  [None, None, None, None, None, None, None],
                   [None, 'w', None, 'w', None, 'w', None],
-                  ['w', None, 'w', None, 'w', None, 'w'],
+                  [None, None, None, None, None, None, None],
                   [None, 'w', None, 'w', None, 'w', None]]
 
         grid2x3 = VCWGrid(2, 3)
-        grid2x3.apply_to_walls(lambda _: 'w')
+        grid2x3.populate_horz_walls(lambda r,c: 'w')
         self.assertEqual(
             arr2x3,
             grid2x3._grid
         )
+
+    def test_vcw_populate_vert_walls(self):
+        arr2x3 = [[None, None, None, None, None, None, None],
+                  ['w', None, 'w', None, 'w', None, 'w'],
+                  [None, None, None, None, None, None, None],
+                  ['w', None, 'w', None, 'w', None, 'w'],
+                  [None, None, None, None, None, None, None]]
+
+        grid2x3 = VCWGrid(2, 3)
+        grid2x3.populate_vert_walls(lambda r,c: 'w')
+        self.assertEqual(
+            arr2x3,
+            grid2x3._grid
+        )
+
+    # def test_vcw_map_walls(self):
+    #     arr2x3 = [[None, 'w', None, 'w', None, 'w', None],
+    #               ['w', None, 'w', None, 'w', None, 'w'],
+    #               [None, 'w', None, 'w', None, 'w', None],
+    #               ['w', None, 'w', None, 'w', None, 'w'],
+    #               [None, 'w', None, 'w', None, 'w', None]]
+    #
+    #     grid2x3 = VCWGrid(2, 3)
+    #     grid2x3.map_walls(lambda: 'w')
+    #     self.assertEqual(
+    #         arr2x3,
+    #         grid2x3._grid
+    #     )
 
     def test_vcw_grid_get_cell(self):
         arr2x3 = [['v', 'w', 'v', 'w', 'v', 'w', 'v'],
