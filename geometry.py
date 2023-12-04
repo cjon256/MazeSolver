@@ -2,18 +2,18 @@ from tkinter import Tk, BOTH, Canvas
 from typing import Any, Self
 from dataclasses import dataclass
 
-@dataclass
+@dataclass(kw_only=True)
 class Point:
     x: int 
     y: int
 
-@dataclass
+@dataclass(kw_only=True)
 class Line:
-    s: Point
-    e: Point
+    start: Point
+    end: Point
 
-@dataclass
-class Location:
+@dataclass(kw_only=True)
+class CellLocation:
     row: int
     col: int
 

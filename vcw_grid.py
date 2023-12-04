@@ -1,5 +1,12 @@
 from typing import Optional, Any, Callable
-from geometry import Location
+from geometry import CellLocation
+from dataclasses import dataclass
+from enum import Enum
+
+@dataclass(kw_only=True)
+class VCWGridLoc:
+    row: int
+    col: int
 
 class VCWGrid:
     def __init__(self, cell_rows: int, cell_cols: int) -> None:
@@ -13,46 +20,61 @@ class VCWGrid:
         self._col_length = 2 * self.cell_cols + 1
         return [[None for _ in range(self._col_length)] for _ in range(self._row_length)]
 
-    def vertices(self) -> iter:
-        for row in range(0, self._row_length, 2):
-            for col in range(0, self._col_length, 2):
-                yield self._grid[row][col]
-    vertexes = vertices # two possible plurals
+    # def vertices(self) -> iter:
+    #     for row in range(0, self._row_length, 2):
+    #         for col in range(0, self._col_length, 2):
+    #             yield self._grid[row][col]
+    # vertexes = vertices # two possible plurals
 
-    def cells(self) -> iter:
+    def cells_locs(self) -> iter:
+        for row in range(self.cell_rows):
+            for col in range(self.cell_cols):
+                yield CellLocation(row=row, col=col)
+
+    # def cells(self) -> iter:
+    #     for row in range(1, self._row_length, 2):
+    #         for col in range(1, self._col_length, 2):
+    #             yield self._grid[row][col]
+
+    # def walls(self) -> iter:
+    #     for row in range(0, self._row_length, 1):
+    #         if row % 2 == 1:
+    #             for col in range(0, self._col_length, 2):
+    #                 yield self._grid[row][col]
+    #         else:
+    #             for col in range(1, self._col_length, 2):
+    #                 yield self._grid[row][col]
+
+    # def apply_to_vertices(self, func: Callable[[Any], Any]) -> iter:
+    #     for row in range(0, self._row_length, 2):
+    #         for col in range(0, self._col_length, 2):
+    #             self._grid[row][col] = func(self._grid[row][col])
+    # apply_to_vertexes = apply_to_vertices # two possible plurals
+    #
+    # def apply_to_cells(self, func: Callable[[Any], Any]) -> iter:
+    #     for row in range(1, self._row_length, 2):
+    #         for col in range(1, self._col_length, 2):
+    #             self._grid[row][col] = func(self._grid[row][col])
+
+    def map_cells(self, func: Callable[[Any], Any]) -> iter:
         for row in range(1, self._row_length, 2):
             for col in range(1, self._col_length, 2):
-                yield self._grid[row][col]
+                func(self._grid[row][col])
 
-    def walls(self) -> iter:
-        for row in range(0, self._row_length, 1):
-            if row % 2 == 1:
-                for col in range(0, self._col_length, 2):
-                    yield self._grid[row][col]
-            else:
-                for col in range(1, self._col_length, 2):
-                    yield self._grid[row][col]
-
-    def apply_to_vertices(self, func: Callable[[Any], Any]) -> iter:
-        for row in range(0, self._row_length, 2):
-            for col in range(0, self._col_length, 2):
-                self._grid[row][col] = func(self._grid[row][col])
-    apply_to_vertexes = apply_to_vertices # two possible plurals
-
-    def apply_to_cells(self, func: Callable[[Any], Any]) -> iter:
-        for row in range(1, self._row_length, 2):
-            for col in range(1, self._col_length, 2):
-                self._grid[row][col] = func(self._grid[row][col])
-
-
-    def apply_to_walls(self, func: Callable[[Any], Any]):
-        for row in range(0, self._row_length, 1):
-            if row % 2 == 1:
-                for col in range(0, self._col_length, 2):
-                    self._grid[row][col] = func(self._grid[row][col])
-            else:
-                for col in range(1, self._col_length, 2):
-                    self._grid[row][col] = func(self._grid[row][col])
+    # def apply_to_walls(self, func: Callable[[Any], Any]):
+    #     for row in range(0, self._row_length, 1):
+    #         if row % 2 == 1:
+    #             for col in range(0, self._col_length, 2):
+    #                 self._grid[row][col] = func(self._grid[row][col])
+    #         else:
+    #             for col in range(1, self._col_length, 2):
+    #                 self._grid[row][col] = func(self._grid[row][col])
+    #
+    # def map_vertices(self, func: Callable[[Any], Any]) -> iter:
+    #     for row in range(0, self._row_length, 2):
+    #         for col in range(0, self._col_length, 2):
+    #             func(self._grid[row][col])
+    # map_vertexes = map_vertices # two possible plurals
 
     def map_walls(self, func: Callable[[Any], Any]):
         for row in range(0, self._row_length, 1):
@@ -63,23 +85,36 @@ class VCWGrid:
                 for col in range(1, self._col_length, 2):
                     func(self._grid[row][col])
 
-    def populate_cells(self, func: Callable[[Any], Any]):
-        for row in range(1, self._row_length, 2):
-            for col in range(1, self._col_length, 2):
-                self._grid[row][col] = func(row, col)
-        pass
+    # def populate_vertexes(self, func: Callable[[Any], Any]):
+    #     for row in range(0, self._row_length, 2):
+    #         for col in range(0, self._col_length, 2):
+    #             self._grid[row][col] = func(row, col)
+    # populate_vertices = populate_vertexes
+    #
+    # def populate_cells(self, func: Callable[[Any], Any]):
+    #     for row in range(1, self._row_length, 2):
+    #         for col in range(1, self._col_length, 2):
+    #             self._grid[row][col] = func(row, col)
 
-    def populate_horz_walls(self, func: Callable[[Any], Any]):
+    def populate_walls(self, func: Callable[[VCWGridLoc], Any]):
         for row in range(0, self._row_length, 2):
             for col in range(1, self._col_length, 2):
-                self._grid[row][col] = func(row,col)
-
-    def populate_vert_walls(self, func: Callable[[Any], Any]):
+                self._grid[row][col] = func(VCWGridLoc(row=row, col=col))
         for row in range(1, self._row_length, 2):
             for col in range(0, self._col_length, 2):
-                self._grid[row][col] = func(row,col)
+                self._grid[row][col] = func(VCWGridLoc(row=row, col=col))
 
-    def scale_location(loc: Location) -> tuple[int, int]:
+    # def populate_horz_walls(self, func: Callable[[Any], Any]):
+    #     for row in range(0, self._row_length, 2):
+    #         for col in range(1, self._col_length, 2):
+    #             self._grid[row][col] = func(row,col)
+    #
+    # def populate_vert_walls(self, func: Callable[[Any], Any]):
+    #     for row in range(1, self._row_length, 2):
+    #         for col in range(0, self._col_length, 2):
+    #             self._grid[row][col] = func(row,col)
+
+    def scale_location(loc: CellLocation) -> tuple[int, int]:
         grid_row = 2 * loc.row + 1
         grid_col = 2 * loc.col + 1
         return grid_row,grid_col
@@ -87,80 +122,88 @@ class VCWGrid:
     def is_valid_cell(self, row: int, col: int) -> bool:
         return (col >= 0 and col <= self.cell_cols and row >= 0 and row <= self.cell_rows)
 
-    def get_cell(self, loc: Location) -> Any:
+    def get_cell(self, loc: CellLocation) -> Any:
         if not self.is_valid_cell(row=loc.row, col=loc.col):
-            print(loc)
+            # print(loc)
             raise Exception(f"Cell index out of range {loc}")
         grid_row, grid_col = VCWGrid.scale_location(loc)
         return self._grid[grid_row][grid_col]
 
-    def get_north_wall(self, loc: Location) -> Any:
+    def set_cell(self, loc: CellLocation, val: Any) -> None:
+        if not self.is_valid_cell(row=loc.row, col=loc.col):
+            # print(loc)
+            raise Exception(f"Cell index out of range {loc}")
+        grid_row, grid_col = VCWGrid.scale_location(loc)
+        # print(f"Setting cell at {loc} -> ({grid_row=},{grid_col=})")
+        self._grid[grid_row][grid_col] = val
+
+    def get_north_wall(self, loc: CellLocation) -> Any:
         cell_row, cell_col = VCWGrid.scale_location(loc)
         return self._grid[cell_row-1][cell_col]
 
-    def get_south_wall(self, loc: Location) -> Any:
+    def get_south_wall(self, loc: CellLocation) -> Any:
         cell_row, cell_col = VCWGrid.scale_location(loc)
         return self._grid[cell_row+1][cell_col]
 
-    def get_east_wall(self, loc: Location) -> Any:
+    def get_east_wall(self, loc: CellLocation) -> Any:
         cell_row, cell_col = VCWGrid.scale_location(loc)
         return self._grid[cell_row][cell_col+1]
 
-    def get_west_wall(self, loc: Location) -> Any:
+    def get_west_wall(self, loc: CellLocation) -> Any:
         cell_row, cell_col = VCWGrid.scale_location(loc)
         return self._grid[cell_row][cell_col-1]
 
-    @property
-    def grid(self):
-        return self._grid
+    # @property
+    # def grid(self):
+    #     return self._grid
 
-    def get_cell_to_north(self, loc: Location):
-        cell_row, cell_col = VCWGrid.scale_location(loc)
-        return self._grid[cell_row-2][cell_col]
+    # def get_cell_to_north(self, loc: CellLocation):
+    #     cell_row, cell_col = VCWGrid.scale_location(loc)
+    #     return self._grid[cell_row-2][cell_col]
+    #
+    # def get_cell_to_south(self, loc: CellLocation):
+    #     cell_row, cell_col = VCWGrid.scale_location(loc)
+    #     return self._grid[cell_row+2][cell_col]
+    #
+    # def get_cell_to_east(self, loc: CellLocation):
+    #     cell_row, cell_col = VCWGrid.scale_location(loc)
+    #     return self._grid[cell_row][cell_col+2]
+    #
+    # def get_cell_to_west(self, loc: CellLocation):
+    #     cell_row, cell_col = VCWGrid.scale_location(loc)
+    #     return self._grid[cell_row][cell_col-2]
 
-    def get_cell_to_south(self, loc: Location):
-        cell_row, cell_col = VCWGrid.scale_location(loc)
-        return self._grid[cell_row+2][cell_col]
-
-    def get_cell_to_east(self, loc: Location):
-        cell_row, cell_col = VCWGrid.scale_location(loc)
-        return self._grid[cell_row][cell_col+2]
-
-    def get_cell_to_west(self, loc: Location):
-        cell_row, cell_col = VCWGrid.scale_location(loc)
-        return self._grid[cell_row][cell_col-2]
-
-    def get_adjacent_cell_locations(self, loc: Location) -> list[Location]:
+    def get_adjacent_cell_locations(self, loc: CellLocation) -> list[CellLocation]:
         neigh = []
         if loc.row > 0:
-            north_loc = Location(loc.row-1, loc.col)
+            north_loc = CellLocation(row=loc.row-1, col=loc.col)
             # print(f"appending location {north_loc=}")
             neigh.append(north_loc)
         if loc.row < self.cell_rows-1:
-            south_loc = Location(loc.row+1, loc.col)
+            south_loc = CellLocation(row=loc.row+1, col=loc.col)
             # print(f"appending location {south_loc}")
             neigh.append(south_loc)
         if loc.col < self.cell_cols-1:
-            east_loc = Location(loc.row, loc.col+1)
+            east_loc = CellLocation(row=loc.row, col=loc.col+1)
             # print(f"appending location {east_loc}")
             neigh.append(east_loc)
         if loc.col > 0:
-            west_loc = Location(loc.row, loc.col-1)
+            west_loc = CellLocation(row=loc.row, col=loc.col-1)
             # print(f"appending location {west_loc}")
             neigh.append(west_loc)
         return neigh
 
-    def get_adjacent_cells(self, loc: Location) -> list[Any]:
-        neigh = []
-        if loc.col > 0:
-            neigh.append(self.get_cell_to_north(loc))
-        if loc.col < self.cell_cols-1:
-            neigh.append(self.get_cell_to_south(loc))
-        if loc.row < self.cell_rows-1:
-            neigh.append(self.get_cell_to_east(loc))
-        if loc.row > 0:
-            neigh.append(self.get_cell_to_west(loc))
-        return neigh
+    # def get_adjacent_cells(self, loc: CellLocation) -> list[Any]:
+    #     neigh = []
+    #     if loc.col > 0:
+    #         neigh.append(self.get_cell_to_north(loc))
+    #     if loc.col < self.cell_cols-1:
+    #         neigh.append(self.get_cell_to_south(loc))
+    #     if loc.row < self.cell_rows-1:
+    #         neigh.append(self.get_cell_to_east(loc))
+    #     if loc.row > 0:
+    #         neigh.append(self.get_cell_to_west(loc))
+    #     return neigh
 
 
 
