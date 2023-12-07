@@ -50,7 +50,7 @@ class GridToScreenTranslator:
             + num_cols * cell_size_in_pixels)
         screen_height = (2 * border_width_in_pixels
             + num_rows * cell_size_in_pixels)
-        self.size = (screen_width, screen_height)
+        self.size = { "width": screen_width, "height": screen_height }
         self.vertex_grid = self.create_vertex_coordinates()
 
     def create_vertex_coordinates(self):
@@ -116,7 +116,7 @@ class GridToScreenTranslator:
 screen = GridToScreenTranslator(num_rows=NUM_ROWS, num_cols=NUM_COLS,
                                 cell_size_in_pixels=CELL_SIZE,
                                 border_width_in_pixels=BORDER_WIDTH)
-win = Window(*screen.size)
+win = Window(**screen.size)
 
 if DEBUG:
     print(screen.vertex_grid)
