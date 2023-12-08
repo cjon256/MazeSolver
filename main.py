@@ -8,6 +8,7 @@ from maze_elements import Cell, Vertex, WallPath
 from screen_coordinate_calculator import ScreenCoordinatCalculator
 from window import Window
 
+from maze_size import MazeSize
 DEBUG = 0
 
 if DEBUG:
@@ -31,6 +32,10 @@ else:
     seed = random.randint(1, 65536)
     random.seed(seed)
     print("seed=",seed)
+
+maze_size = MazeSize(cell_rows=NUM_ROWS, cell_cols=NUM_COLS)
+
+print(maze_size.vertex_cols)
 
 class GridToScreenTranslator:
     def __init__(self, num_rows: int, num_cols: int,
