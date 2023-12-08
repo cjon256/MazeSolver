@@ -3,3 +3,5 @@ scratch.py
 old/
 .tool-versions
 .git
+.old_junk
+.python-version
